@@ -61,16 +61,35 @@ __attribute__((annotate("returns_localized_nsstring"))) static inline NSString *
 
 + (instancetype)wmf_placesActivityWithURL:(NSURL *)activityURL {
     NSURLComponents *components = [NSURLComponents componentsWithURL:activityURL resolvingAgainstBaseURL:NO];
+    NSUserActivity *activity = [self wmf_pageActivityWithName:@"Places"];
+    
     NSURL *articleURL = nil;
+    NSString *lat = nil;
+    NSString *lon = nil;
+    
     for (NSURLQueryItem *item in components.queryItems) {
         if ([item.name isEqualToString:@"WMFArticleURL"]) {
             NSString *articleURLString = item.value;
             articleURL = [NSURL URLWithString:articleURLString];
+            activity.webpageURL = articleURL;
             break;
+            // FIXME: WMFArticleURL has prioirity over lat&lon. Is it ok?
+        } else if ([item.name isEqualToString:@"lat"]) {
+            NSString *latString = item.value;
+            lat = latString;
+        } else if ([item.name isEqualToString:@"lon"]) {
+            NSString *lonString = item.value;
+            lon = lonString;
         }
     }
-    NSUserActivity *activity = [self wmf_pageActivityWithName:@"Places"];
-    activity.webpageURL = articleURL;
+    
+    if (lat && lon) {
+        NSMutableDictionary *userInfo = [activity.userInfo mutableCopy];
+        [userInfo setObject:lat forKey:@"lat"];
+        [userInfo setObject:lon forKey:@"lon"];
+        activity.userInfo = userInfo;
+    }
+
     return activity;
 }
 
