@@ -1953,9 +1953,10 @@ class PlacesViewController: ViewController, UISearchBarDelegate, ArticlePopoverV
     
     @objc(showLocationWithLat:lon:)
     public func showLocation(lat: NSString, lon: NSString) {
+        panMapToNextLocationUpdate = false
+        
         let location = CLLocation(latitude: lat.doubleValue, longitude: lon.doubleValue)
         zoomAndPanMapView(toLocation: location)
-        // FIXME: first open goes to current location
     }
     
     fileprivate func searchForFirstSearchSuggestion() {
