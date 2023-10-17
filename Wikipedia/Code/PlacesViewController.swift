@@ -1952,10 +1952,10 @@ class PlacesViewController: ViewController, UISearchBarDelegate, ArticlePopoverV
     }
     
     @objc(showLocationWithLat:lon:)
-    public func showLocation(lat: NSString, lon: NSString) {
+    public func showLocation(lat: Double, lon: Double) {
         panMapToNextLocationUpdate = false
         
-        let location = CLLocation(latitude: lat.doubleValue, longitude: lon.doubleValue)
+        let location = CLLocation(latitude: lat, longitude: lon)
         zoomAndPanMapView(toLocation: location)
     }
     

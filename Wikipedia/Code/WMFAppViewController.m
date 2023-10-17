@@ -1186,8 +1186,11 @@ NSString *const WMFLanguageVariantAlertsLibraryVersion = @"WMFLanguageVariantAle
             [self setSelectedIndex:WMFAppTabTypePlaces];
             [self.navigationController popToRootViewControllerAnimated:animated];
             
-            NSString *lat = activity.userInfo[@"lat"];
-            NSString *lon = activity.userInfo[@"lon"];
+            NSString *latString = activity.userInfo[@"lat"];
+            NSString *lonString = activity.userInfo[@"lon"];
+            double lat = [latString doubleValue];
+            double lon = [lonString doubleValue];
+            
             if (lat && lon) {
                 [[self placesViewController] updateViewModeToMap];
                 [[self placesViewController] showLocationWithLat:lat lon:lon];
