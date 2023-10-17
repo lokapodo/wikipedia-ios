@@ -61,20 +61,31 @@ __attribute__((annotate("returns_localized_nsstring"))) static inline NSString *
 
 + (instancetype)wmf_placesActivityWithURL:(NSURL *)activityURL {
     NSURLComponents *components = [NSURLComponents componentsWithURL:activityURL resolvingAgainstBaseURL:NO];
-    NSUserActivity *activity = [self wmf_pageActivityWithName:@"Places"];
-    
     NSURL *articleURL = nil;
-    NSString *lat = nil;
-    NSString *lon = nil;
     
     for (NSURLQueryItem *item in components.queryItems) {
         if ([item.name isEqualToString:@"WMFArticleURL"]) {
             NSString *articleURLString = item.value;
             articleURL = [NSURL URLWithString:articleURLString];
-            activity.webpageURL = articleURL;
             break;
-            // FIXME: WMFArticleURL has prioirity over lat&lon. Is it ok?
-        } else if ([item.name isEqualToString:@"lat"]) {
+        }
+    }
+    NSUserActivity *activity = [self wmf_pageActivityWithName:@"Places"];
+    activity.webpageURL = articleURL;
+
+    return activity;
+}
+
++ (instancetype)wmf_placesLocationActivityWithURL:(NSURL *)activityURL {
+    NSUserActivity *activity = [self wmf_pageActivityWithName:@"Location"];
+
+    NSURLComponents *components = [NSURLComponents componentsWithURL:activityURL resolvingAgainstBaseURL:NO];
+    
+    NSString *lat = nil;
+    NSString *lon = nil;
+    
+    for (NSURLQueryItem *item in components.queryItems) {
+        if ([item.name isEqualToString:@"lat"]) {
             NSString *latString = item.value;
             lat = latString;
         } else if ([item.name isEqualToString:@"lon"]) {
@@ -144,6 +155,8 @@ __attribute__((annotate("returns_localized_nsstring"))) static inline NSString *
         return [self wmf_exploreViewActivity];
     } else if ([url.host isEqualToString:@"places"]) {
         return [self wmf_placesActivityWithURL:url];
+    } else if ([url.host isEqualToString:@"location"])  {
+        return [self wmf_placesLocationActivityWithURL:url];
     } else if ([url.host isEqualToString:@"saved"]) {
         return [self wmf_savedPagesViewActivity];
     } else if ([url.host isEqualToString:@"history"]) {
@@ -232,6 +245,8 @@ __attribute__((annotate("returns_localized_nsstring"))) static inline NSString *
             return WMFUserActivityTypeExplore;
         } else if ([page isEqualToString:@"Places"]) {
             return WMFUserActivityTypePlaces;
+        } else if ([page isEqualToString:@"Location"]) {
+            return WMFUserActivityTypeLocation;
         } else if ([page isEqualToString:@"Saved"]) {
             return WMFUserActivityTypeSavedPages;
         } else if ([page isEqualToString:@"History"]) {
@@ -311,6 +326,9 @@ __attribute__((annotate("returns_localized_nsstring"))) static inline NSString *
             break;
         case WMFUserActivityTypePlaces:
             host = @"places";
+            break;
+        case WMFUserActivityTypeLocation:
+            host = @"location";
             break;
         case WMFUserActivityTypeExplore:
         default:
